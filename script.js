@@ -1,4 +1,13 @@
 const showSelect = document.getElementById("show-select");
+const showDetails = document.getElementById("show-details");
+
+const requestOptions = {
+    method: "GET",
+    headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${TMDB_TOKEN}`
+    }
+};
 
 async function loadPopularShows() {
     const url = "https://api.themoviedb.org/3/tv/popular";
@@ -20,7 +29,7 @@ async function loadPopularShows() {
 
         const data = await res.json();
         fillDropdown(data.results);
-        
+
     } catch (error) {
         console.error(error);
     }
@@ -44,5 +53,33 @@ function fillDropdown(shows) {
         showSelect.appendChild(option);
     });
 }
+
+async function loadShowDetails(id) {
+    const url = `https://api.themoviedb.org/3/tv/${id}`;
+
+    try {
+        const res = await fetch(url, requestOptions);
+
+        if (!res.ok) {
+            throw new Error(`Request failed with status ${res.status}`);
+        }
+
+        const show = await res.json();
+        console.log(show);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+showSelect.addEventListener("change", function () {
+  const id = showSelect.value;
+
+  if (id === "") {
+    return;
+  }
+
+  loadShowDetails(id);
+});
 
 loadPopularShows();
