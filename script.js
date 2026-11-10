@@ -1,5 +1,6 @@
 const showSelect = document.getElementById("show-select");
 const showDetails = document.getElementById("show-details");
+const statusMessage = document.getElementById("status-message");
 
 const requestOptions = {
     method: "GET",
@@ -9,19 +10,38 @@ const requestOptions = {
     }
 };
 
+// Display loading or error messages
+function showStatus(message, type = "") {
+    statusMessage.textContent = message;
+    statusMessage.className = type;
+}
+
+// Handle API errors
+function handleApiError(error) {
+    console.error(error);
+
+    if (error.message.includes("401")) {
+        showStatus(
+            "TMDB rejected your API token. Check your API Read Access Token in config.js.",
+            "error"
+        );
+    } else {
+        showStatus(
+            "Something went wrong while loading the TV shows. Please try again.",
+            "error"
+        );
+    }
+}
+
+// Request popular TV shows
 async function loadPopularShows() {
     const url = "https://api.themoviedb.org/3/tv/popular";
 
-    const options = {
-        method: "GET",
-        headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${TMDB_TOKEN}`
-        }
-    };
+    // Clear old messages and show loading status
+    showStatus("Loading popular shows...", "loading");
 
     try {
-        const res = await fetch(url, options);
+        const res = await fetch(url, requestOptions);
 
         if (!res.ok) {
             throw new Error(`Request failed with status ${res.status}`);
@@ -30,8 +50,11 @@ async function loadPopularShows() {
         const data = await res.json();
         fillDropdown(data.results);
 
+        // Remove loading message after success
+        showStatus("");
+
     } catch (error) {
-        console.error(error);
+        handleApiError(error);
     }
 }
 
@@ -54,8 +77,13 @@ function fillDropdown(shows) {
     });
 }
 
+// Request details for the selected TV show
 async function loadShowDetails(id) {
     const url = `https://api.themoviedb.org/3/tv/${id}`;
+
+    // Clear previous details and show loading message
+    showDetails.replaceChildren();
+    showStatus("Loading show details...", "loading");
 
     try {
         const res = await fetch(url, requestOptions);
@@ -67,8 +95,11 @@ async function loadShowDetails(id) {
         const show = await res.json();
         displayDetails(show);
 
+        // Remove loading message after success
+        showStatus("");
+
     } catch (error) {
-        console.error(error);
+        handleApiError(error);
     }
 }
 
@@ -122,10 +153,13 @@ function displayDetails(show) {
     showDetails.appendChild(status);
 }
 
+// Listen for dropdown changes
 showSelect.addEventListener("change", function () {
     const id = showSelect.value;
 
     if (id === "") {
+        showDetails.replaceChildren();
+        showStatus("");
         return;
     }
 
