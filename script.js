@@ -1,7 +1,14 @@
+/* =========================================
+   TV SHOW FINDER - JAVASCRIPT
+   ========================================= */
+
+// Get HTML elements
 const showSelect = document.getElementById("show-select");
 const showDetails = document.getElementById("show-details");
 const statusMessage = document.getElementById("status-message");
 
+// Shared TMDB API request settings
+// TMDB_TOKEN comes from config.js
 const requestOptions = {
     method: "GET",
     headers: {
@@ -10,15 +17,24 @@ const requestOptions = {
     }
 };
 
-// Display loading or error messages
+// Track the latest details request
+let currentRequest = 0;
+
+/* =========================================
+   STATUS MESSAGES
+   ========================================= */
+
 function showStatus(message, type = "") {
     statusMessage.textContent = message;
     statusMessage.className = type;
 }
 
-// Handle API errors
+/* =========================================
+   ERROR HANDLING
+   ========================================= */
+
 function handleApiError(error) {
-    console.error(error);
+    console.error("TMDB API Error:", error);
 
     if (error.message.includes("401")) {
         showStatus(
@@ -33,129 +49,245 @@ function handleApiError(error) {
     }
 }
 
-// Request popular TV shows
+/* =========================================
+   LOAD POPULAR TV SHOWS
+   ========================================= */
+
 async function loadPopularShows() {
     const url = "https://api.themoviedb.org/3/tv/popular";
 
-    // Clear old messages and show loading status
-    showStatus("Loading popular shows...", "loading");
+    showSelect.disabled = true;
+    showStatus("Loading popular TV shows...", "loading");
 
     try {
-        const res = await fetch(url, requestOptions);
+        const response = await fetch(url, requestOptions);
 
-        if (!res.ok) {
-            throw new Error(`Request failed with status ${res.status}`);
+        if (!response.ok) {
+            throw new Error(
+                `Request failed with status ${response.status}`
+            );
         }
 
-        const data = await res.json();
+        const data = await response.json();
+
         fillDropdown(data.results);
 
-        // Remove loading message after success
         showStatus("");
 
     } catch (error) {
         handleApiError(error);
+
+    } finally {
+        showSelect.disabled = false;
     }
 }
 
-function fillDropdown(shows) {
-    // Clear the dropdown before adding new options
-    showSelect.innerHTML = "";
+/* =========================================
+   POPULATE DROPDOWN
+   ========================================= */
 
-    // Create the placeholder option
+function fillDropdown(shows) {
+    // Remove existing dropdown options
+    showSelect.replaceChildren();
+
+    // Create placeholder
     const placeholder = document.createElement("option");
-    placeholder.textContent = "Select a show";
+    placeholder.textContent = "Select a TV show";
     placeholder.value = "";
+
     showSelect.appendChild(placeholder);
 
-    // Create an option for each TV show
+    // Add popular TV shows
     shows.forEach(function (show) {
         const option = document.createElement("option");
+
         option.textContent = show.name;
         option.value = show.id;
+
         showSelect.appendChild(option);
     });
 }
 
-// Request details for the selected TV show
+/* =========================================
+   LOAD SELECTED SHOW DETAILS
+   ========================================= */
+
 async function loadShowDetails(id) {
+    const requestId = ++currentRequest;
     const url = `https://api.themoviedb.org/3/tv/${id}`;
 
-    // Clear previous details and show loading message
     showDetails.replaceChildren();
+
     showStatus("Loading show details...", "loading");
 
     try {
-        const res = await fetch(url, requestOptions);
+        const response = await fetch(url, requestOptions);
 
-        if (!res.ok) {
-            throw new Error(`Request failed with status ${res.status}`);
+        if (!response.ok) {
+            throw new Error(
+                `Request failed with status ${response.status}`
+            );
         }
 
-        const show = await res.json();
+        const show = await response.json();
+
+        // Ignore outdated requests
+        if (requestId !== currentRequest) {
+            return;
+        }
+
         displayDetails(show);
 
-        // Remove loading message after success
         showStatus("");
 
     } catch (error) {
-        handleApiError(error);
+        if (requestId === currentRequest) {
+            handleApiError(error);
+        }
     }
 }
+
+/* =========================================
+   HELPER: CREATE INFORMATION PARAGRAPH
+   ========================================= */
+
+function createInfoParagraph(label, value) {
+    const paragraph = document.createElement("p");
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${label}: `;
+
+    const text = document.createElement("span");
+    text.textContent = value;
+
+    paragraph.appendChild(strong);
+    paragraph.appendChild(text);
+
+    return paragraph;
+}
+
+/* =========================================
+   DISPLAY TV SHOW DETAILS
+   ========================================= */
 
 function displayDetails(show) {
-    // Clear the previous show's details
-    showDetails.innerHTML = "";
+    // Clear previous show details
+    showDetails.replaceChildren();
 
-    // Create the show name
+    // Create show title
     const title = document.createElement("h2");
-    title.textContent = show.name;
+    title.textContent = show.name || "Unknown TV Show";
+
     showDetails.appendChild(title);
 
-    // Create the show poster or a fallback message
+    // Create two-column layout
+    const showLayout = document.createElement("div");
+    showLayout.className = "show-layout";
+
+    // Create poster container
+    const posterContainer = document.createElement("div");
+    posterContainer.className = "poster-container";
+
+    // Create show information container
+    const showInfo = document.createElement("div");
+    showInfo.className = "show-info";
+
+    /* TV SHOW POSTER */
+
     if (show.poster_path) {
         const poster = document.createElement("img");
-        poster.src = `https://image.tmdb.org/t/p/w500${show.poster_path}`;
+
+        poster.src =
+            `https://image.tmdb.org/t/p/w500${show.poster_path}`;
+
         poster.alt = `Poster for ${show.name}`;
-        showDetails.appendChild(poster);
+        poster.loading = "lazy";
+
+        posterContainer.appendChild(poster);
+
     } else {
         const noPoster = document.createElement("p");
+
+        noPoster.className = "no-poster";
         noPoster.textContent = "No poster available";
-        showDetails.appendChild(noPoster);
+
+        posterContainer.appendChild(noPoster);
     }
 
-    // Create the overview
+    /* OVERVIEW */
+
+    const overviewHeading = document.createElement("h3");
+    overviewHeading.textContent = "Overview";
+
     const overview = document.createElement("p");
-    overview.textContent = show.overview || "No overview available.";
-    showDetails.appendChild(overview);
+    overview.className = "show-overview";
 
-    // Create the genres
-    const genres = document.createElement("p");
-    const genreNames = show.genres.map(function (genre) {
-        return genre.name;
-    });
-    genres.textContent = `Genres: ${genreNames.join(", ") || "Not available"}`;
-    showDetails.appendChild(genres);
+    overview.textContent =
+        show.overview || "No overview available.";
 
-    // Create the number of seasons
-    const seasons = document.createElement("p");
-    seasons.textContent = `Seasons: ${show.number_of_seasons}`;
-    showDetails.appendChild(seasons);
+    showInfo.appendChild(overviewHeading);
+    showInfo.appendChild(overview);
 
-    // Create the number of episodes
-    const episodes = document.createElement("p");
-    episodes.textContent = `Episodes: ${show.number_of_episodes}`;
-    showDetails.appendChild(episodes);
+    /* GENRES */
 
-    // Create the show's status
-    const status = document.createElement("p");
-    status.textContent = `Status: ${show.status}`;
-    showDetails.appendChild(status);
+    const genreNames = Array.isArray(show.genres)
+        ? show.genres.map(function (genre) {
+            return genre.name;
+        })
+        : [];
+
+    const genres = createInfoParagraph(
+        "Genres",
+        genreNames.join(", ") || "Not available"
+    );
+
+    showInfo.appendChild(genres);
+
+    /* SEASONS */
+
+    const seasons = createInfoParagraph(
+        "Seasons",
+        show.number_of_seasons ?? "Not available"
+    );
+
+    showInfo.appendChild(seasons);
+
+    /* EPISODES */
+
+    const episodes = createInfoParagraph(
+        "Episodes",
+        show.number_of_episodes ?? "Not available"
+    );
+
+    showInfo.appendChild(episodes);
+
+    /* SHOW STATUS */
+
+    const status = createInfoParagraph(
+        "Status",
+        show.status || "Not available"
+    );
+
+    showInfo.appendChild(status);
+
+    /* COMBINE BOTH COLUMNS */
+
+    showLayout.appendChild(posterContainer);
+    showLayout.appendChild(showInfo);
+
+    // Add layout to the details card
+    showDetails.appendChild(showLayout);
 }
 
-// Listen for dropdown changes
+/* =========================================
+   DROPDOWN EVENT LISTENER
+   ========================================= */
+
 showSelect.addEventListener("change", function () {
     const id = showSelect.value;
+
+    // Invalidate any previous details request
+    currentRequest++;
 
     if (id === "") {
         showDetails.replaceChildren();
@@ -165,5 +297,9 @@ showSelect.addEventListener("change", function () {
 
     loadShowDetails(id);
 });
+
+/* =========================================
+   INITIALIZE WEBSITE
+   ========================================= */
 
 loadPopularShows();

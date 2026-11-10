@@ -1,10 +1,12 @@
-/* =====================================
+/* =========================================
    TV SHOW FINDER - CUSTOM STYLES
-   ===================================== */
+   ========================================= */
 
-/* Color palette and global settings */
+/* COLOR PALETTE */
+
 :root {
     --navy: #12263f;
+    --dark-blue: #193b63;
     --blue: #2864a0;
     --light-blue: #dcebf8;
     --background: #edf3f9;
@@ -16,222 +18,438 @@
     --error-bg: #fde8e9;
 }
 
-/* Apply consistent sizing */
+/* GLOBAL STYLES */
+
 * {
     box-sizing: border-box;
 }
 
-/* Main page styling */
 body {
     margin: 0;
     padding: 40px 20px;
     min-height: 100vh;
-    background-color: var(--background);
+
+    background: linear-gradient(
+        135deg,
+        #edf3f9 0%,
+        #dcebf8 100%
+    );
+
     color: var(--text);
     font-family: "Segoe UI", Arial, sans-serif;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
-/* Main heading */
+/* =========================================
+   MAIN HEADER
+   ========================================= */
+
 h1 {
     max-width: 900px;
-    margin: 0 auto 30px;
-    padding: 30px 20px;
-    background-color: var(--navy);
+    margin: 0 auto 35px;
+    padding: 40px 24px;
+
+    background: linear-gradient(
+        120deg,
+        var(--navy),
+        var(--blue)
+    );
+
     color: var(--white);
-    font-size: 2.5rem;
-    font-weight: 700;
     text-align: center;
-    letter-spacing: 1px;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(18, 38, 63, 0.15);
+
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.25;
+    letter-spacing: 0.5px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 10px 30px
+        rgba(18, 38, 63, 0.18);
 }
 
-/* Dropdown label */
+/* =========================================
+   DROPDOWN LABEL
+   ========================================= */
+
 label {
     display: block;
     max-width: 900px;
     margin: 0 auto 10px;
+
     color: var(--navy);
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 650;
 }
 
-/* TV show dropdown */
+/* =========================================
+   TV SHOW DROPDOWN
+   ========================================= */
+
 #show-select {
     display: block;
+
     width: 100%;
     max-width: 900px;
-    margin: 0 auto 25px;
-    padding: 14px 16px;
-    background-color: var(--white);
+
+    margin: 0 auto 28px;
+    padding: 15px 18px;
+
+    background: var(--white);
     color: var(--text);
+
     border: 2px solid var(--border);
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 1rem;
+    border-radius: 12px;
+
+    font: inherit;
     cursor: pointer;
-    transition: border-color 0.2s, box-shadow 0.2s;
+
+    box-shadow: 0 4px 12px
+        rgba(18, 38, 63, 0.06);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-/* Dropdown hover */
+/* DROPDOWN HOVER */
+
 #show-select:hover {
     border-color: var(--blue);
 }
 
-/* Dropdown keyboard focus */
-#show-select:focus {
-    outline: 3px solid var(--light-blue);
-    outline-offset: 2px;
+/* DROPDOWN FOCUS */
+
+#show-select:focus-visible {
     border-color: var(--blue);
+
+    outline: 3px solid var(--light-blue);
+    outline-offset: 3px;
 }
 
-/* TV show details card */
-#show-details {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 30px;
-    background-color: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(18, 38, 63, 0.08);
+/* DISABLED DROPDOWN */
+
+#show-select:disabled {
+    opacity: 0.7;
+    cursor: wait;
 }
 
-/* Hide the details card when empty */
-#show-details:empty {
-    display: none;
-}
+/* =========================================
+   STATUS MESSAGES
+   ========================================= */
 
-/* Selected show heading */
-#show-details h2 {
-    margin: 0 0 20px;
-    color: var(--navy);
-    font-size: 2rem;
-    line-height: 1.3;
-}
-
-/* TV show poster */
-#show-details img {
-    display: block;
-    width: 100%;
-    max-width: 250px;
-    height: auto;
-    margin: 0 0 22px;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
-
-/* TV show information */
-#show-details p {
-    margin: 0 0 14px;
-    color: var(--text);
-    font-size: 1rem;
-    line-height: 1.7;
-    overflow-wrap: anywhere;
-}
-
-/* Status message container */
 #status-message {
     width: 100%;
     max-width: 900px;
-    margin: 0 auto 20px;
+
+    margin: 0 auto 22px;
     padding: 15px 20px;
-    border-radius: 10px;
+
+    border-radius: 12px;
+
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     text-align: center;
 }
 
-/* Hide status message when empty */
+/* HIDE EMPTY STATUS */
+
 #status-message:empty {
     display: none;
 }
 
-/* Loading message */
+/* LOADING MESSAGE */
+
 #status-message.loading {
-    background-color: var(--light-blue);
+    background: var(--light-blue);
     color: var(--navy);
+
     border: 1px solid var(--blue);
+
+    animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Error message */
+/* ERROR MESSAGE */
+
 #status-message.error {
-    background-color: var(--error-bg);
+    background: var(--error-bg);
     color: var(--error);
+
     border: 1px solid var(--error);
 }
 
-/* =====================================
-   RESPONSIVE DESIGN
-   ===================================== */
+/* =========================================
+   TV SHOW DETAILS CARD
+   ========================================= */
 
-/* Tablet and smaller screens */
-@media (max-width: 768px) {
-    body {
-        padding: 25px 15px;
+#show-details {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto;
+    padding: 34px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
+    border-top: 5px solid var(--blue);
+
+    border-radius: 18px;
+
+    box-shadow: 0 12px 35px
+        rgba(18, 38, 63, 0.1);
+
+    animation: fadeIn 0.4s ease;
+}
+
+/* HIDE EMPTY DETAILS */
+
+#show-details:empty {
+    display: none;
+}
+
+/* SHOW TITLE */
+
+#show-details h2 {
+    margin: 0 0 26px;
+
+    color: var(--navy);
+
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    line-height: 1.3;
+}
+
+/* =========================================
+   TWO-COLUMN LAYOUT
+   ========================================= */
+
+.show-layout {
+    display: grid;
+
+    grid-template-columns:
+        250px minmax(0, 1fr);
+
+    align-items: start;
+    gap: 32px;
+}
+
+/* =========================================
+   POSTER CONTAINER
+   ========================================= */
+
+.poster-container {
+    min-width: 0;
+}
+
+/* POSTER IMAGE */
+
+.poster-container img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    border-radius: 14px;
+
+    box-shadow: 0 8px 22px
+        rgba(0, 0, 0, 0.18);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+/* POSTER HOVER EFFECT */
+
+.poster-container img:hover {
+    transform: scale(1.025);
+
+    box-shadow: 0 12px 28px
+        rgba(0, 0, 0, 0.22);
+}
+
+/* MISSING POSTER */
+
+.no-poster {
+    display: grid;
+    place-items: center;
+
+    min-height: 320px;
+    padding: 20px;
+
+    background: var(--background);
+    color: var(--gray);
+
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+
+    text-align: center;
+}
+
+/* =========================================
+   TV SHOW INFORMATION
+   ========================================= */
+
+.show-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* OVERVIEW HEADING */
+
+.show-info h3 {
+    margin: 0 0 8px;
+
+    color: var(--dark-blue);
+    font-size: 1.15rem;
+}
+
+/* INFORMATION PARAGRAPHS */
+
+.show-info p {
+    margin: 0;
+
+    color: var(--text);
+    line-height: 1.75;
+
+    overflow-wrap: anywhere;
+}
+
+/* OVERVIEW TEXT */
+
+.show-info .show-overview {
+    margin-bottom: 20px;
+}
+
+/* GENRES, SEASONS, EPISODES, STATUS */
+
+.show-info p:not(.show-overview) {
+    padding: 12px 0;
+
+    border-top: 1px solid var(--border);
+}
+
+/* INFORMATION LABELS */
+
+.show-info strong {
+    color: var(--dark-blue);
+    font-weight: 700;
+}
+
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+
+/* FADE-IN ANIMATION */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-    h1 {
-        padding: 25px 15px;
-        font-size: 2rem;
-    }
-
-    #show-details {
-        padding: 22px;
-    }
-
-    #show-details h2 {
-        font-size: 1.7rem;
-    }
-
-    #show-details img {
-        max-width: 220px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Mobile phones */
-@media (max-width: 480px) {
+/* LOADING ANIMATION */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.65;
+    }
+}
+
+/* =========================================
+   TABLET RESPONSIVE DESIGN
+   ========================================= */
+
+@media (max-width: 768px) {
+
     body {
-        padding: 15px 10px;
+        padding: 25px 15px;
     }
 
     h1 {
-        padding: 22px 12px;
-        font-size: 1.6rem;
-        letter-spacing: 0;
-    }
-
-    label {
-        font-size: 1rem;
-    }
-
-    #show-select {
-        padding: 12px;
-        font-size: 1rem;
+        padding: 30px 18px;
     }
 
     #show-details {
-        padding: 18px;
+        padding: 24px;
+    }
+
+    .show-layout {
+        grid-template-columns:
+            200px minmax(0, 1fr);
+
+        gap: 22px;
+    }
+}
+
+/* =========================================
+   MOBILE RESPONSIVE DESIGN
+   ========================================= */
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 16px 10px;
+    }
+
+    h1 {
+        padding: 26px 14px;
+        border-radius: 12px;
+    }
+
+    #show-select {
+        padding: 13px;
+    }
+
+    #show-details {
+        padding: 20px;
         border-radius: 12px;
     }
 
     #show-details h2 {
-        font-size: 1.4rem;
+        text-align: center;
     }
 
-    #show-details img {
-        max-width: 180px;
-        margin-left: auto;
-        margin-right: auto;
+    /* STACK POSTER ABOVE INFORMATION */
+
+    .show-layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
     }
 
-    #show-details p {
-        font-size: 0.95rem;
+    .poster-container {
+        width: 100%;
+        max-width: 220px;
+        margin: 0 auto;
     }
 
-    #status-message {
-        padding: 12px;
-        font-size: 0.95rem;
+    .no-poster {
+        min-height: 280px;
+    }
+}
+
+/* =========================================
+   ACCESSIBILITY
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
     }
 }
